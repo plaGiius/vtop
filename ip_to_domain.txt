@@ -1,0 +1,3 @@
+142.251.211.228 www.google.com 
+204.79.197.200 www.bing.com 
+98.137.11.164 www.yahoo.com 
