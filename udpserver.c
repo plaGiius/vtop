@@ -8,6 +8,12 @@
 #include<arpa/inet.h>
 #include<string.h>
 #include<unistd.h>
+int myFunction(int x){
+	if(x == 1)
+		return 1;
+	else
+		return x*myFunction(x-1);
+}
 int main(){
     struct sockaddr_in client;
     int s,n;
@@ -26,11 +32,7 @@ int main(){
 	break;
 	}
     fact = 1;
-    while(num>0)
-    {
-        fact = fact * num;
-        num = num-1;
-    }
+    fact = myFunction(num);
     sendto(s,&fact,sizeof(fact),0,(struct sockaddr*)&client,n);
     }
     fflush(stdout);
