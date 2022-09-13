@@ -1,89 +1,66 @@
-#include <stdio.h> 
-#include <stdlib.h> 
+#include <netdb.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
-#include <unistd.h> 
-#include <arpa/inet.h> 
 
-int main(){ 
-    char *ip = "127.0.0.1"; 
-    int port = 5566; 
-    int server_sock, client_sock; 
-    struct sockaddr_in server_addr, client_addr; 
-    socklen_t addr_size; 
-    char buffer[1024]; 
-    int n; 
-    int pnr;
-    server_sock = socket(AF_INET, SOCK_STREAM, 0); 
-    if (server_sock < 0){
-        perror("[-]Socket error"); 
-        exit(1); 
-    } 
-    //printf("[+]TCP server socket created.\n"); 
-    memset(&server_addr, '\0', sizeof(server_addr)); 
-    server_addr.sin_family = AF_INET; 
-    server_addr.sin_port = port; 
-    server_addr.sin_addr.s_addr = inet_addr(ip); 
-    n = bind(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)); 
-    if (n < 0){ 
-        perror("[-]Bind error"); 
-        exit(1); 
-    } 
-    //printf("[+]Bind to the port number: %d\n", port); 
-    printf("IRCTC Server\n\n");
-    listen(server_sock, 5); 
-    //printf("Listening...\n"); 
-    while(1){ 
-        addr_size = sizeof(client_addr); 
-        client_sock = accept(server_sock, (struct sockaddr*)&client_addr, &addr_size); 
-        while (1){
-            bzero(buffer, 1024); 
-		strcpy(buffer, "Enter Boarding Point"); 
-		send(client_sock, buffer, strlen(buffer), 0); 
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#define MAX 80
+void func(int name)
+{
+char buff[MAX];
+int n;
+// infinite loop for chat
+for (;;) {
+bzero(buff, MAX);
+// read the message from client and copy it in buffer
+read(name, buff, sizeof(buff));
+// print buffer which contains the client contents
+printf("From client: %sTo client : ", buff);
+bzero(buff, MAX);
+n = 0;
+// copy server message in the buffer
+while ((buff[n++] = getchar()) != '\n')
+;
+// and send that buffer to client
+write(name, buff, sizeof(buff));
+// if msg contains "Exit" then server exit and chat ended.
+if (strncmp("exit", buff, 4) == 0) {
+printf("Server Exit...\n");
+break;
+}
+}
+}
+int main(void)
+{
+int port = 6001;
+char *ip = "127.0.0.1";
+//define socket
+struct sockaddr_in server,client;
+int server_id = socket(PF_INET,SOCK_STREAM,0);
+server.sin_family = PF_INET;
+server.sin_port = port;
+server.sin_addr.s_addr = inet_addr(ip);
+//bind it
+int bindstatus = bind(server_id,(struct
+sockaddr*)&server,sizeof(server));
+//listen for communicaton
+int listenstat = listen(server_id,5);
+//accept requests
+socklen_t addrlen = sizeof(client);
 
-		bzero(buffer, 1024); 
-		recv(client_sock, buffer, sizeof(buffer), 0); 
-		printf("Boarding Station: %s\n", buffer); 
-
-		bzero(buffer, 1024); 
-		strcpy(buffer, "Enter Dropping Point"); 
-		send(client_sock, buffer, strlen(buffer), 0); 
-		bzero(buffer, 1024); 
-
-		recv(client_sock, buffer, sizeof(buffer), 0); 
-		printf("Dropping Station: %s\n", buffer); 
-            while(1){
-                bzero(buffer, 1024); 
-                strcpy(buffer, "Enter your name"); 
-                send(client_sock, buffer, strlen(buffer), 0);
-
-                bzero(buffer, 1024); 
-                recv(client_sock, buffer, sizeof(buffer), 0);
-                printf("Passenger Name: %s\n", buffer);
-                
-                bzero(buffer, 1024); 
-                strcpy(buffer, "Add Passenger [y/n]"); 
-                send(client_sock, buffer, strlen(buffer), 0); 
-
-                bzero(buffer, 1024); 
-                recv(client_sock, buffer, sizeof(buffer), 0);
-                if (strcmp(buffer, "n") == 0)
-                    break;
-                
-            }
-
-            //sleep(2);
-            pnr = rand();
-            send(client_sock, &pnr, sizeof(pnr), 0);
-            printf("PNR Number: %d\n", pnr);
-
-            //sleep(2);
-            bzero(buffer, 1024); 
-            strcpy(buffer, "Ticket Booked Successfully");
-            send(client_sock, buffer, strlen(buffer), 0);
-            printf("i");
-            close(client_sock); 
-            break;
-        } 
-    }
-    return 0; 
+int newid = accept(server_id,(struct sockaddr*)&client,&addrlen);
+if(newid != -1)
+{
+fflush(stdout);
+printf("accepted\n");
+}
+int num = 1;
+//chat
+func(newid);
+printf("connection terminated\n");
+close(newid);
 }
