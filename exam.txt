@@ -1,0 +1,837 @@
+bully algorithm 
+             	
+processes = list(range(n+1))
+
+def bully(p,n,tab):
+    coordinator = p
+    for i in range(p+1, n+1):
+        print(tab * '\t' + f"Process {p} sends election message to {i}")
+        if p < n:
+            bully(i,n,tab+1)
+        if processes[i] < 0:
+            print(tab * '\t' + f"No response from Process {i}")
+        else:
+            print(tab * '\t' + f"Response received from Process {i}")
+            coordinator = i
+    return coordinator
+
+for i in range(1,n+1):
+    if processes[i]<0:
+        print(f"process {i} is dead")
+    else:
+        print(f"process {i} is alive")
+
+coordinator = max(processes)
+print(f"coordinator is {coordinator}")
+#print(f"The coordinator process {coordinator} fails")
+crash = list(map(int,input("enter dead processes\n").split()))
+for c in crash:
+    processes[c] = -processes[c]
+
+for i in range(1,n+1):
+    if processes[i]<0:
+        print(f"process {i} is dead")
+    else:
+        print(f"process {i} is alive")
+        
+initiator = random.randint(1,n)
+while processes[initiator] < 0:
+    initiator = random.randint(1,n)
+    
+if processes[coordinator]<0:
+    print(f"Process {initiator} initiates election\n")
+    coordinator = bully(initiator,n,0)
+    print(f"The new coordinator is {coordinator}")
+else:
+    print(f"coordinator is {coordinator}")
+ 
+
+
+
+
+centralized
+
+from collections import defaultdict
+ 
+class Graph():
+    def __init__(self,vertices):
+        self.graph = defaultdict(list)
+        self.V = vertices
+ 
+    def addEdge(self,u,v):
+        self.u = u
+        self.v = v
+        self.graph[u].append(v)
+ 
+    def isCyclicUtil(self, v, visited, recStack):
+
+        visited[v] = True
+        recStack[v] = True
+
+        for neighbour in self.graph[v]:
+            if visited[neighbour] == False:
+                if self.isCyclicUtil(neighbour, visited, recStack) == True:
+                    return True
+            elif recStack[neighbour] == True:
+                return True
+ 
+        recStack[v] = False
+        return False
+ 
+    def isCyclic(self):
+        visited = [False] * (self.V + 1)
+        recStack = [False] * (self.V + 1)
+        for node in range(self.V):
+            if visited[node] == False:
+                if self.isCyclicUtil(node,visited,recStack) == True:
+                    return True
+        return False
+ 
+
+
+total_site = int(input("Enter the total number of sites - "))
+new_list = [[]for i in range(total_site)]
+
+process= []
+s=0
+while(s<total_site):
+
+    s = int(input("Enter the site - "))
+    np = int(input("Enter the number of processes - "))
+    process.append(np)
+    g = Graph(np)
+
+    for i in range(np):
+        p = int(input("Process - "))
+        hol = int(input("Resource that is held by the process - "))
+        r = int(input("Process requesting for resource - "))
+        g.addEdge(p,r)
+        new_list[s-1].append(str(p)+"->"+str(r))
+
+    print(new_list)
+    if g.isCyclic():
+        print("Local Deadlock in site - ",s)
+    else:
+        print("There is no deadlock in site - ",s)
+    print("\n")
+
+l = []
+l = [num for sublist in new_list for num in sublist]
+
+res = [*set(l)]
+print("After merging the given sites - ",res)
+
+maximum = max(process)
+
+g = Graph(maximum)
+
+for i in res:
+    new_pro = int(i[0])
+    new_res = int(i[3])
+    g.addEdge(new_pro,new_res)
+
+if g.isCyclic():
+    print("Deadlock in global level")
+else:
+    print("There is no deadlock in global level3")
+
+
+ring algorithm
+
+n = int(input("Enter the number of processes : "))
+p = []
+for i in range(n):
+    p.append(int(input("enter process id\n")))
+print(p)
+coordinator = max(p)
+crash = int(input("enter dead processes\n"))
+print(f"Process {crash} fails")
+
+p[p.index(crash)] = -crash
+
+for i in range(n):
+    if p[i]<0:
+        print(f"process {-p[i]} is dead")
+    else:
+        print(f"process {p[i]} is alive")
+
+
+print("Enter initiator : ", end="")
+initiator = int(input())
+
+initiator_pos = p.index(initiator)
+pos = initiator_pos
+msg = [initiator]
+print(f"\nProcess {p[pos]} --> {msg}")
+pos = (pos+1)%len(p)
+
+while (p[pos] != msg[0]):
+    msg.append(p[pos])
+    print(f"Process {p[pos]} --> {msg}")
+    pos = (pos+1)%len(p)
+
+print(f"\nNew coordinator : Process {max(msg)}")
+
+
+
+
+Hierarchy
+
+from collections import defaultdict
+ 
+class Graph():
+    def __init__(self,vertices):
+        self.graph = defaultdict(list)
+        self.V = vertices
+ 
+    def addEdge(self,u,v):
+        self.u = u
+        self.v = v
+        self.graph[u].append(v)
+ 
+    def isCyclicUtil(self, v, visited, recStack):
+
+        visited[v] = True
+        recStack[v] = True
+
+        for neighbour in self.graph[v]:
+            if visited[neighbour] == False:
+                if self.isCyclicUtil(neighbour, visited, recStack) == True:
+                    return True
+            elif recStack[neighbour] == True:
+                return True
+ 
+        recStack[v] = False
+        return False
+ 
+    def isCyclic(self):
+        visited = [False] * (self.V + 1)
+        recStack = [False] * (self.V + 1)
+        for node in range(self.V):
+            if visited[node] == False:
+                if self.isCyclicUtil(node,visited,recStack) == True:
+                    return True
+        return False
+    
+total_site = int(input("Enter the total number of sites - "))
+new_list = [[]for i in range(total_site)]
+
+process= []
+s=0
+while(s<total_site):
+
+    s = int(input("Enter the site - "))
+    np = int(input("Enter the number of processes - "))
+    process.append(np)
+
+    for i in range(np):
+        p = int(input("Process - "))
+        hol = int(input("Resource that is held by the process - "))
+        r = int(input("Process requesting for resource - "))
+        new_list[s-1].append(str(p)+"->"+str(r))
+
+    print(new_list)
+
+n = len(new_list)
+
+
+print("\n")
+while(n > 1):
+    temp_1= []
+    temp_2 = []
+    temp_3 = []
+    temp_1 = new_list.pop(0)
+    temp_2 = new_list.pop(0)
+    temp_3 = temp_1 + temp_2
+    print(temp_3)
+
+    result = [*set(temp_3)]
+    size = len(result)
+    g = Graph(size)
+    for i in result:
+        new_pro = int(i[0])
+        new_res = int(i[3])
+        g.addEdge(new_pro,new_res)
+
+    if g.isCyclic():
+        print("Deadlock in gloabal level\n")
+    else:
+        print("There is no deadlock in global level\n")
+
+    print("\n")
+    new_list.append(temp_3)
+    n = len(new_list)
+    
+
+
+
+
+
+
+mpi multiplication
+
+//matrixbroad
+
+from mpi4py import MPI
+import numpy as np
+
+# Initialize MPI
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+print("Rank is ",rank)
+print("Size is ",size)
+print(comm.Get_name())
+# Define matrix sizes
+m = 6  # rows of matrix A
+n = 6 # columns of matrix A / rows of matrix B
+p = 6 # columns of matrix B
+
+# Create random matrices A and B on rank 0
+
+if rank == 0:
+    A = np.random.randint(low=1, high=10, size=(m, n))
+    B = np.random.randint(low=1, high=10, size=(n, p))
+else:
+    A = None
+    B = None
+
+# Broadcast matrices A and B to all processes
+A = comm.bcast(A, root=0)
+B = comm.bcast(B, root=0)
+
+# Compute local matrix multiplication
+local_C = np.zeros((m//size, p))
+for i in range(m//size):
+    for j in range(p):
+        for k in range(n):
+            local_C[i, j] += A[i+rank*m//size, k] * B[k, j]
+print(local_C)
+
+# Gather local C matrices on rank 0
+C = None
+if rank == 0:
+    C = np.zeros((m, p))
+comm.Gather(local_C, C, root=0)
+
+# Print result on rank 0
+if rank == 0:
+    print("Matrix A:")
+    print(A)
+    print("Matrix B:")
+    print(B)
+    print("Matrix C:")
+    print(C)
+
+
+
+
+MPI PI
+
+from mpi4py import MPI
+import random
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+n = 1000000 # initialize n on root process
+comm.bcast(n, root=0)  # broadcast n to all processes
+
+count = 0
+for i in range(n):
+    x = random.random()
+    y = random.random()
+    if x*2 + y*2 < 1:
+        count += 1
+
+local_pi = 4 * count / n
+global_pi = comm.reduce(local_pi, op=MPI.SUM, root=0)
+
+if rank == 0:
+    print("Pi is approximately %.16f." % (global_pi / size))
+
+
+
+
+
+
+
+sod
+
+#include "sod.h"
+int *
+sod_1_svc(numbers *argp, struct svc_req *rqstp)
+{
+	static int  result;
+	printf("sod(%d) is called\n", argp->a);
+	int x = argp->a;
+	int a=0;int b=0;
+	while(x!=0){
+		a = x % 10;
+		x = x / 10;
+		b = b + a;
+	}
+	result = b;
+	return &result;
+}
+
+
+
+
+Reverse :
+
+#include "rev.h"
+int *
+rev_1_svc(numbers *argp, struct svc_req *rqstp)
+{
+	static int  result;
+	printf("rev(%d) is called\n", argp->a);
+	int x = argp->a;
+	int a=0;int b=0;
+	while(x!=0){
+		a = x % 10;
+		x = x / 10;
+		b = b*10 + a;
+	}
+	result = b;
+	return &result;
+}
+
+
+
+
+
+
+Armstrong
+
+//Armstrong number
+
+#include "add.h“
+
+int ifAmstrong(int a, int length ){
+    int sum = 0;
+    int b = a;
+    while(a > 0){
+        int temp = a % 10;
+        for(int i = 0;i<length-1 ;i++){
+            temp = temp * temp;
+        }
+
+        sum += temp;
+        a = a / 10;
+    }
+
+    if(sum == b){
+        return 1;
+    }
+
+    return 0;
+}
+
+
+
+int *
+
+add_1_svc(numbers *argp, struct svc_req *rqstp)
+
+{
+
+static int result;
+
+int n = argp->a;
+  
+    int ten = 10;
+    int length = 1;
+    int sum = 0;
+    for(int i = 1;i<= n;i++){
+        if(i == ten){
+            length += 1;
+            ten = ten * 10;
+        }
+        if(ifAmstrong(i,length) == 1){
+            sum += i;
+        }
+    }
+  
+
+    result = sum;
+
+
+
+return &result;
+
+}
+
+
+
+
+Krishnamoorthy series whether
+
+
+#include "kris.h"
+
+int factorial(int a){
+    int p =1;
+    int i;
+    for (i=2;i<=a;i++){
+        p = p *i;
+    }
+    return p;
+}
+
+int *
+kris_1_svc(numbers *argp, struct svc_req *rqstp)
+{
+    static int  result;
+    int a = argp->a;
+    int s = 0;
+    int temp = a;
+    int d,fact;
+    while (temp>0){
+        d = temp%10;
+        fact = factorial(d);
+        s = s+fact;
+        temp = temp/10;
+    }
+    if(s==a){
+        result = 1;
+    }
+    else{
+        result = 0;
+    }
+
+    return &result;
+}
+
+
+
+kris.x
+
+struct numbers{
+    int a;
+};
+
+program kris_prog{
+    version kris_vers{
+        int kris(numbers) = 1;
+    }=1;
+}=1;
+
+
+
+
+
+fibonacci_series
+
+#include "fib_rpc.h"
+
+int * fibonacci_sum_1_svc(int *n, struct svc_req *rqstp) {
+    static int result;
+    int a = 0, b = 1, c, sum = 0;
+
+    for(int i=1; i<=*n; i++) {
+        if(i==1) {
+            sum += a;
+            continue;
+        }
+        if(i==2) {
+            sum += b;
+            continue;
+        }
+        c = a + b;
+        a = b;
+        b = c;
+        if(c<=*n) {
+            sum += c;
+        } else {
+            break;
+        }
+    }
+    result = sum;
+    return &result;
+}
+
+
+
+Probe
+
+
+
+from collections import defaultdict
+ 
+class Graph():
+    def __init__(self,vertices):
+        self.graph = defaultdict(list)
+        self.V = vertices
+ 
+    def addEdge(self,u,v):
+        self.u = u
+        self.v = v
+        self.graph[u].append(v)
+ 
+    def isCyclicUtil(self, v, visited, recStack):
+
+        visited[v] = True
+        recStack[v] = True
+
+        for neighbour in self.graph[v]:
+            if visited[neighbour] == False:
+                if self.isCyclicUtil(neighbour, visited, recStack) == True:
+                    return True
+            elif recStack[neighbour] == True:
+                return True
+ 
+        recStack[v] = False
+        return False
+ 
+    def isCyclic(self):
+        visited = [False] * (self.V + 1)
+        recStack = [False] * (self.V + 1)
+        for node in range(self.V):
+            if visited[node] == False:
+                if self.isCyclicUtil(node,visited,recStack) == True:
+                    return True
+        return False
+ 
+
+size = int(input("Enter the number of processes - "))
+
+procesess = []
+resources = []
+
+for i in range(size):
+    pro = int(input("Enter the proceses -  "))
+    procesess.append(pro)
+    res = int(input("Enter the resources - "))
+    resources.append(res)
+
+start = int(input("Enter the intiator - "))
+ind = procesess.index(start)
+
+temp_1 = []
+temp_2 = []
+temp_3 = []
+temp_4 = []
+
+temp_1 = procesess[0:ind]
+temp_2 = procesess[ind:]
+temp_3 = resources[0:ind]
+temp_4 = resources[ind:]
+
+new_process = temp_2 + temp_1
+new_resource = temp_4 + temp_3
+
+# new_process.append(new_process[0])
+# new_resource.append(new_resource[0])
+
+print(new_process)
+print(new_resource)
+
+for i in range(size):
+    p = procesess[i]
+    r = resources[i]
+    print(str(p) + "->" + str(r))
+
+print("Probe message initiated by the processor - ", start)
+for i in range(size-1):
+    print("Initiator - ",start , "Sender - " , new_process[i] , "Receiver - ", new_process[i+1]) 
+
+
+
+g = Graph(size)
+
+for i in range(size):
+    g.addEdge(procesess[i],resources[i])
+
+if g.isCyclic() == 1:
+    print("Initiator - ",start , "Sender - " , new_process[size-1] , "Reciver - ", start) 
+    print("There is deadlock")
+else:
+    print("There is no deadlock")
+
+
+
+
+
+f_binary to decimal
+
+int binary, decimal = 0, base = 1, rem;
+while (binary > 0) {
+        rem = binary % 10;
+        decimal += rem * base;
+        binary /= 10;
+        base *= 2;
+    }
+
+    printf("Decimal equivalent: %d", decimal);
+
+
+
+
+Decimal to binary
+
+//decimal to binary server
+
+int decimal, binary = 0, base = 1, rem;
+while (decimal > 0) {
+        rem = decimal % 2;
+        binary += rem * base;
+        decimal /= 2;
+        base *= 10;
+    }
+
+    printf("Binary equivalent: %d", binary);
+
+
+
+
+
+Mpi add bc
+
+mpiexec -np 4 python3 file.py
+
+
+from mpi4py import MPI
+import random
+
+# Initialize MPI environment
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+# Matrix dimensions
+rows = 8
+cols = 8
+
+# Randomly generate matrices
+if rank == 0:
+    matrix1 = [[random.randint(1, 10) for j in range(cols)] for i in range(rows)]
+    matrix2 = [[random.randint(1, 10) for j in range(cols)] for i in range(rows)]
+else:
+    matrix1 = None
+    matrix2 = None
+
+# Broadcast matrices to all processes
+matrix1 = comm.bcast(matrix1, root=0)
+matrix2 = comm.bcast(matrix2, root=0)
+
+# Initialize result matrix
+result_row = [0 for j in range(cols)]
+
+# Compute matrix addition
+for j in range(cols):
+    result_row[j] = matrix1[rank][j] + matrix2[rank][j]
+print(result_row,rank)
+
+# Gather results to root process
+results = comm.gather(result_row, root=0)
+
+# Print results from root process
+if rank == 0:
+    print("Matrix 1:")
+    for row in matrix1:
+        print(row)
+    print("Matrix 2:")
+    for row in matrix2:
+        print(row)
+    print("Result:")
+    for i in range(rows):
+        print(results[i])
+
+
+
+
+Krishnamoorthy upto N
+
+#include "kris.h"
+
+int factorial(int a) {
+    int p = 1;
+    int i;
+    for (i = 2; i <= a; i++) {
+        p = p * i;
+    }
+    return p;
+}
+
+void find_krishnamurthy_numbers(int n, int *result) {
+    int i, j, temp, d, fact, s;
+    printf("Krishnamurthy numbers up to %d:\n", n);
+    for (i = 1; i <= n; i++) {
+        s = 0;
+        temp = i;
+        while (temp > 0) {
+            d = temp % 10;
+            fact = factorial(d);
+            s = s + fact;
+            temp = temp / 10;
+        }
+        if (s == i) {
+            *result++ = i;
+        }
+    }
+}
+
+int *kris_1_svc(numbers *argp, struct svc_req *rqstp) {
+    static int result[100];
+    int n = argp->a;
+    find_krishnamurthy_numbers(n, result);
+    return (int *) &result;
+}
+
+
+
+Kris whether Client
+
+#include "kris.h"
+
+
+void
+kris_prog_1(char *host, int a)
+{
+    CLIENT *clnt;
+    int  *result_1;
+    numbers  kris_1_arg;
+    kris_1_arg.a = a;
+
+#ifndef    DEBUG
+    clnt = clnt_create (host, kris_prog, kris_vers, "udp");
+    if (clnt == NULL) {
+        clnt_pcreateerror (host);
+        exit (1);
+    }
+#endif    /* DEBUG */
+
+    result_1 = kris_1(&kris_1_arg, clnt);
+    if (result_1 == (int *) NULL) {
+        clnt_perror (clnt, "call failed");
+    }
+    else{
+        // printf("%d",*result_1);
+        if (*result_1==1){
+            printf("Yes it is a kris number\n");
+        }
+        else{
+            printf("No it is not \n");
+        }
+    }
+#ifndef    DEBUG
+    clnt_destroy (clnt);
+#endif     /* DEBUG */
+}
+
+
+int
+main (int argc, char *argv[])
+{
+    char *host;
+
+    if (argc < 3) {
+        printf ("usage: %s server_host\n", argv[0]);
+        exit (1);
+    }
+    host = argv[1];
+    kris_prog_1 (host,atoi(argv[2]));
+exit (0);
+}
